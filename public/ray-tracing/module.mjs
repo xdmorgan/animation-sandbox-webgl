@@ -1,3 +1,3 @@
-import { Scene } from "./scripts/ray-tracing.mjs";
+import { Scene } from "./src/ray-tracing.mjs";
 
 document.addEventListener("DOMContentLoaded", () => new Scene());
