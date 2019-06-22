@@ -1,0 +1,14 @@
+{
+  "name": "animation-sandbox-webgl",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:xdmorgan/animation-sandbox-webgl.git",
+  "author": "Dan Morgan",
+  "license": "MIT",
+  "scripts": {
+    "start": "http-server src -p 8000"
+  },
+  "devDependencies": {
+    "http-server": "^0.11.1"
+  }
+}
