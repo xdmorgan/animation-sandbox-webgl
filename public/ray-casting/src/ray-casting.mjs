@@ -3,7 +3,7 @@ import { randColor, randCoord } from "./random.mjs";
 import { randRotation } from "./random.mjs";
 
 const { THREE } = window;
-const BOXES = 10000;
+const BOXES = 5000;
 
 export class Scene {
   constructor({ canvas }) {
@@ -11,18 +11,21 @@ export class Scene {
     // create camera
     const [fov, aspect, near, far] = [35, 2, 0.1, 100];
     this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    this.camera.position.z = 10;
-    this.controls = new THREE.OrbitControls(
-      this.camera,
-      this.renderer.domElement
-    );
+    this.camera.position.z = 20;
+    // this.controls = new THREE.OrbitControls(
+    //   this.camera,
+    //   this.renderer.domElement
+    // );
     // create root scene
     this.scene = new THREE.Scene(); // a container
     this.scene.background = new THREE.Color();
     // add some lighting
-    const light = new THREE.DirectionalLight(0xffffff, 0.5);
-    light.position.set(0, 0, 10);
-    this.scene.add(light);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+    ambient.position.set(0, 0, 50);
+    this.scene.add(ambient);
+    const directional = new THREE.DirectionalLight(0xffffff, 0.5);
+    directional.position.set(0, 0, 50);
+    this.scene.add(directional);
     // create field of cubes
     this.objects = [];
     for (let i = 0; i < BOXES; i++) {
@@ -55,7 +58,7 @@ export class Scene {
       this.renderer.setSize(view.width, view.height, false);
       this.camera.aspect = view.aspect;
       this.camera.updateProjectionMatrix();
-      this.controls.update();
+      // this.controls.update();
     }
 
     // raycasting
@@ -77,7 +80,7 @@ class Cube {
     size = 0.2
   }) {
     const geometry = new THREE.BoxBufferGeometry(size, size, size);
-    const material = new THREE.MeshBasicMaterial({ color });
+    const material = new THREE.MeshLambertMaterial({ color });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.x = position.x;
     mesh.position.y = position.y;
