@@ -1,0 +1,39 @@
+:root {
+  --base: 0.5rem;
+  --base-sm: calc(var(--base) * 0.5);
+  --base-lg: calc(var(--base) * 1.5);
+  --space: var(--base-sm);
+  --static: var(--base);
+
+  --space-0: 0;
+  --space-025: calc(var(--space) * 0.25);
+  --space-05: calc(var(--space) * 0.5);
+  --space-1: var(--space);
+  --space-2: calc(var(--space) * 2);
+  --space-3: calc(var(--space) * 3);
+  --space-4: calc(var(--space) * 4);
+  --space-5: calc(var(--space) * 5);
+  --space-10: calc(var(--space) * 10);
+
+  --static-0: 0;
+  --static-025: calc(var(--static) * 0.25);
+  --static-05: calc(var(--static) * 0.5);
+  --static-1: var(--static);
+  --static-2: calc(var(--static) * 2);
+  --static-3: calc(var(--static) * 3);
+  --static-4: calc(var(--static) * 4);
+  --static-5: calc(var(--static) * 5);
+  --static-10: calc(var(--static) * 10);
+}
+
+@media screen and (min-width: 768px) {
+  :root {
+    --space: var(--base);
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  :root {
+    --space: var(--base-lg);
+  }
+}

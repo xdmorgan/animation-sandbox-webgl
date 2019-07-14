@@ -1,10 +1,5 @@
 export class App {
   constructor() {
-    console.log("constructor");
-  }
-
-  start() {
-    console.log("start");
     new hoverEffect({
       parent: document.querySelector(".demo"),
       intensity1: 0.1,

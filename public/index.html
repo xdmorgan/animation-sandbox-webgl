@@ -1,12 +1,42 @@
 <html>
   <head>
     <title>GL Sandbox</title>
-    <!-- <link rel="stylesheet" href="./style.css" /> -->
+    <style>
+      html {
+        font-size: 100%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        box-sizing: border-box;
+      }
+
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+
+      body {
+        margin: 0;
+        font-size: 1rem;
+        font-family: system-ui, sans-serif;
+      }
+    </style>
   </head>
   <body>
+    <h1>WebGL Experiments</h1>
     <ul>
       <li><a href="/ray-casting">Ray Casting</a></li>
-      <li><a href="/image-transition">Image Transition</a></li>
+      <li>
+        <h2>Distortion Transition</h2>
+        <ul>
+          <li>
+            <a href="/image-transition/custom">Custom</a>
+          </li>
+          <li>
+            <a href="/image-transition/tutorial">Tutorial</a>
+          </li>
+        </ul>
+      </li>
     </ul>
     <!-- <script type="module" src="./module.mjs"></script> -->
   </body>

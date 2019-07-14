@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <title>Image Transition</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+
+      html {
+        font-size: 100%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        box-sizing: border-box;
+      }
+
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+
+      body {
+        margin: 0;
+        font-size: 1rem;
+        font-family: system-ui, sans-serif;
+      }
+
+      .demo {
+        outline: 1px solid red;
+        display: block;
+        width: 690px;
+        height: 420px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo"></div>
+    <script src="https://www.unpkg.com/three@latest/build/three.min.js"></script>
+    <script src="https://www.unpkg.com/greensock@latest/dist/TweenMax.js"></script>
+    <script src="https://www.unpkg.com/hover-effect@latest/dist/hover-effect.umd.js"></script>
+    <script type="module">
+      import { App } from "./main.mjs";
+      document.addEventListener("DOMContentLoaded", () => new App());
+    </script>
+  </body>
+</html>
