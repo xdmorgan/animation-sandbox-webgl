@@ -1,3 +1,5 @@
+import hoverEffect from "./transition/transition.mjs";
+
 export class App {
   constructor() {
     new hoverEffect({

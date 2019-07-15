@@ -26,13 +26,13 @@
   --static-10: calc(var(--static) * 10);
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 1024px) {
   :root {
     --space: var(--base);
   }
 }
 
-@media screen and (min-width: 1280px) {
+@media screen and (min-width: 1440px) {
   :root {
     --space: var(--base-lg);
   }

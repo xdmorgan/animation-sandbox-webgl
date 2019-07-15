@@ -1,5 +1,5 @@
-import * as THREE from "three";
-import TweenMax from "gsap/TweenMax";
+// import * as THREE from "three";
+// import TweenMax from "gsap/TweenMax";
 
 export default function(opts) {
   var vertex = `
