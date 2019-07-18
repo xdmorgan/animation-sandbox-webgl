@@ -1,5 +1,3 @@
-// import * as THREE from "three";
-// import TweenMax from "gsap/TweenMax";
 import { fragment, vertex } from "./gl.mjs";
 import { tween } from "./util.mjs";
 
@@ -33,127 +31,64 @@ export default function({
   const [scene, camera, renderer] = createScene(parent);
   parent.appendChild(renderer.domElement);
 
-  var render = function() {
-    // This will be called by the TextureLoader as well as TweenMax.
-    renderer.render(scene, camera);
+  const render = () => renderer.render(scene, camera);
+  const animate = () => {
+    render();
+    requestAnimationFrame(animate);
   };
 
-  var loader = new THREE.TextureLoader();
-  loader.crossOrigin = "";
-
-  var disp = loader.load(displacementImage, render);
+  const loader = new THREE.TextureLoader();
+  // loader.crossOrigin = "";
+  const disp = loader.load(displacementImage, render);
   disp.wrapS = disp.wrapT = THREE.RepeatWrapping;
 
-  if (video) {
-    var animate = function() {
-      requestAnimationFrame(animate);
+  let texture1, texture2;
 
-      renderer.render(scene, camera);
-    };
+  if (video) {
     animate();
 
-    var video = document.createElement("video");
-    video.autoplay = true;
-    video.loop = true;
-    video.src = image1;
+    const video = createVideoElement(image1);
     video.load();
+    texture1 = new THREE.VideoTexture(video);
+    video.addEventListener("loadeddata", video.play, false);
 
-    var video2 = document.createElement("video");
-    video2.autoplay = true;
-    video2.loop = true;
-    video2.src = image2;
+    const video2 = createVideoElement(image2);
     video2.load();
-
-    var texture1 = new THREE.VideoTexture(video);
-    var texture2 = new THREE.VideoTexture(video2);
-    texture1.magFilter = texture2.magFilter = THREE.LinearFilter;
-    texture1.minFilter = texture2.minFilter = THREE.LinearFilter;
-
-    video2.addEventListener(
-      "loadeddata",
-      function() {
-        video2.play();
-
-        texture2 = new THREE.VideoTexture(video2);
-        texture2.magFilter = THREE.LinearFilter;
-        texture2.minFilter = THREE.LinearFilter;
-
-        mat.uniforms.texture2.value = texture2;
-      },
-      false
-    );
-
-    video.addEventListener(
-      "loadeddata",
-      function() {
-        video.play();
-
-        texture1 = new THREE.VideoTexture(video);
-
-        texture1.magFilter = THREE.LinearFilter;
-        texture1.minFilter = THREE.LinearFilter;
-
-        mat.uniforms.texture1.value = texture1;
-      },
-      false
-    );
+    texture2 = new THREE.VideoTexture(video2);
+    video2.addEventListener("loadeddata", video2.play, false);
   } else {
-    var texture1 = loader.load(image1, render);
-    var texture2 = loader.load(image2, render);
-
-    texture1.magFilter = texture2.magFilter = THREE.LinearFilter;
-    texture1.minFilter = texture2.minFilter = THREE.LinearFilter;
+    texture1 = loader.load(image1, render);
+    texture2 = loader.load(image2, render);
   }
 
-  var mat = new THREE.ShaderMaterial({
-    uniforms: {
-      intensity1: {
-        type: "f",
-        value: intensity1
-      },
-      intensity2: {
-        type: "f",
-        value: intensity2
-      },
-      dispFactor: {
-        type: "f",
-        value: 0.0
-      },
-      angle1: {
-        type: "f",
-        value: angle1
-      },
-      angle2: {
-        type: "f",
-        value: angle2
-      },
-      texture1: {
-        type: "t",
-        value: texture1
-      },
-      texture2: {
-        type: "t",
-        value: texture2
-      },
-      disp: {
-        type: "t",
-        value: disp
-      }
-    },
+  texture1.magFilter = texture1.minFilter = THREE.LinearFilter;
+  texture2.magFilter = texture2.minFilter = THREE.LinearFilter;
 
+  const mat = new THREE.ShaderMaterial({
+    uniforms: {
+      intensity1: { type: "f", value: intensity1 },
+      intensity2: { type: "f", value: intensity2 },
+      dispFactor: { type: "f", value: 0.0 },
+      angle1: { type: "f", value: angle1 },
+      angle2: { type: "f", value: angle2 },
+      texture1: { type: "t", value: texture1 },
+      texture2: { type: "t", value: texture2 },
+      disp: { type: "t", value: disp }
+    },
     vertexShader: vertex,
     fragmentShader: fragment,
     transparent: true,
     opacity: 1.0
   });
 
-  var geometry = new THREE.PlaneBufferGeometry(
+  const geometry = new THREE.PlaneBufferGeometry(
     parent.offsetWidth,
     parent.offsetHeight,
     1
   );
-  var object = new THREE.Mesh(geometry, mat);
-  scene.add(object);
+
+  const mesh = new THREE.Mesh(geometry, mat);
+  scene.add(mesh);
 
   const transitionIn = () =>
     tween(mat.uniforms.dispFactor, 1, speedIn, easing, render);
@@ -167,18 +102,17 @@ export default function({
     parent.addEventListener("touchend", transitionOut);
   }
 
-  window.addEventListener("resize", function(e) {
-    renderer.setSize(parent.offsetWidth, parent.offsetHeight);
-  });
+  window.addEventListener("resize", () =>
+    renderer.setSize(parent.offsetWidth, parent.offsetHeight)
+  );
 
   this.next = transitionIn;
   this.previous = transitionOut;
 }
 
-function createScene(parent) {
+function createScene({ offsetWidth: ow, offsetHeight: oh }) {
   const scene = new THREE.Scene();
   // camera
-  const { offsetWidth: ow, offsetHeight: oh } = parent;
   const [l, r, t, b] = [ow / -2, ow / 2, oh / 2, oh / -2];
   const [near, far] = [1, 1000];
   const camera = new THREE.OrthographicCamera(l, r, t, b, near, far);
@@ -187,7 +121,13 @@ function createScene(parent) {
   const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setClearColor(0xffffff, 0.0);
-  renderer.setSize(parent.offsetWidth, parent.offsetHeight);
+  renderer.setSize(ow, oh);
   // return it all
   return [scene, camera, renderer];
+}
+
+function createVideoElement(src) {
+  const v = document.createElement("video");
+  [v.autoplay, v.loop, v.muted, v.src] = [true, true, true, src];
+  return v;
 }
