@@ -1,4 +1,4 @@
-import hoverEffect from "./transition/transition.mjs";
+import hoverEffect from "./transition/hover-effect.mjs";
 
 export class App {
   constructor() {
