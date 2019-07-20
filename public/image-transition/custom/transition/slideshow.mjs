@@ -1,6 +1,8 @@
 import { fragment, vertex } from "./gl.mjs";
 import { tween } from "./util.mjs";
 
+const load = (loader, url) => new Promise(resolve => loader.load(url, resolve));
+
 export default function({
   // required
   parent,
@@ -28,25 +30,44 @@ export default function({
     1
   );
 
-  const queue = [...sources];
+  const queue = [...sources, sources[0]];
+  const pairs = [];
   const slides = [];
+  // TODO: reduce not while
   while (queue.length) {
     const [from, to] = [queue.shift(), queue[0]];
-    if (to) {
-      const textures = [loader.load(from, render), loader.load(to, render)];
-      slides.push(createSlide(textures, geometry, intensity, angle, disp));
-    }
+    if (from && to) pairs.push([from, to]);
+
+    //   // creqte queue from this array of loader.load entries?
+    //   const promises = [load(loader, from), load(loader, to)];
+    //   Promise.all(promises).then(textures =>
+    //     slides.push(createSlide(textures, geometry, intensity, angle, disp))
+    //   );
   }
-  const { mat, mesh } = slides[2];
-  scene.add(mesh);
+
+  let current = 0;
+  const promises = pairs[0].map(src => load(loader, src));
+  Promise.all(promises)
+    .then(textures =>
+      slides.push(createSlide(textures, geometry, intensity, angle, disp))
+    )
+    .then(() => {
+      scene.add(slides[current].mesh);
+      render();
+    });
+  // console.log(pairs);
+
+  // scene.add(slides[current].mesh);
 
   window.addEventListener("resize", () =>
     renderer.setSize(parent.offsetWidth, parent.offsetHeight)
   );
 
-  this.next = () => tween(mat.uniforms.dispFactor, 1, speed, easing, render);
+  this.next = () =>
+    tween(slides[current].mat.uniforms.dispFactor, 1, speed, easing, render);
+
   this.previous = () =>
-    tween(mat.uniforms.dispFactor, 0, speed, easing, render);
+    tween(slides[current].mat.uniforms.dispFactor, 0, speed, easing, render);
 }
 
 function createScene({ offsetWidth: ow, offsetHeight: oh }) {
