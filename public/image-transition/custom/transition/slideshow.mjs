@@ -2,72 +2,90 @@ import { fragment, vertex } from "./gl.mjs";
 import { tween } from "./util.mjs";
 
 const load = (loader, url) => new Promise(resolve => loader.load(url, resolve));
+const time = dur => new Promise(resolve => setTimeout(resolve, dur));
 
-export default function({
-  // required
-  parent,
-  displacement,
-  sources = [],
-  // optional
-  intensity = 1,
-  angle = Math.PI / 4,
-  speed = 1200,
-  easing = "easeOutExpo"
-} = {}) {
-  const [scene, camera, renderer] = createScene(parent);
-  parent.appendChild(renderer.domElement);
+export default class Slideshow {
+  constructor({
+    // required
+    parent,
+    displacement,
+    sources = [],
+    // optional
+    intensity = 1,
+    angle = Math.PI / 4,
+    speed = 2000,
+    easing = "easeOutExpo",
+    delay = 5000
+  } = {}) {
+    this.parent = parent;
+    [this.intensity, this.angle] = [intensity, angle];
+    [this.speed, this.easing, this.delay] = [speed, easing, delay];
+    [this.scene, this.camera, this.renderer] = createScene(parent);
+    this.parent.appendChild(this.renderer.domElement);
+    this.loader = new THREE.TextureLoader();
+    this.disp = this.loader.load(displacement, this.render);
+    [this.disp.wrapS, this.disp.wrapT] = [
+      THREE.RepeatWrapping,
+      THREE.RepeatWrapping
+    ];
+    const { offsetWidth: ow, offsetHeight: oh } = this.parent;
+    this.geometry = new THREE.PlaneBufferGeometry(ow, oh, 1);
 
-  const render = () => renderer.render(scene, camera);
+    const queue = [...sources, sources[0]];
+    this.pairs = [];
+    this.slides = [];
+    // TODO: reduce not while
+    while (queue.length) {
+      const [from, to] = [queue.shift(), queue[0]];
+      if (from && to) this.pairs.push([from, to]);
+    }
 
-  const loader = new THREE.TextureLoader();
-  // loader.crossOrigin = "";
-  const disp = loader.load(displacement, render);
-  disp.wrapS = disp.wrapT = THREE.RepeatWrapping;
+    window.addEventListener("resize", () =>
+      renderer.setSize(parent.offsetWidth, parent.offsetHeight)
+    );
 
-  const geometry = new THREE.PlaneBufferGeometry(
-    parent.offsetWidth,
-    parent.offsetHeight,
-    1
-  );
-
-  const queue = [...sources, sources[0]];
-  const pairs = [];
-  const slides = [];
-  // TODO: reduce not while
-  while (queue.length) {
-    const [from, to] = [queue.shift(), queue[0]];
-    if (from && to) pairs.push([from, to]);
-
-    //   // creqte queue from this array of loader.load entries?
-    //   const promises = [load(loader, from), load(loader, to)];
-    //   Promise.all(promises).then(textures =>
-    //     slides.push(createSlide(textures, geometry, intensity, angle, disp))
-    //   );
+    this.current = 0;
+    const [pair] = this.pairs; // first set
+    this.load(pair)
+      .then(slide => {
+        this.slides.push(slide);
+        this.scene.add(this.slides[this.current].mesh);
+        this.render();
+        return time(this.delay);
+      })
+      .then(this.next)
+      .then(() => this.play(this.current + 1));
   }
 
-  let current = 0;
-  const promises = pairs[0].map(src => load(loader, src));
-  Promise.all(promises)
-    .then(textures =>
-      slides.push(createSlide(textures, geometry, intensity, angle, disp))
-    )
-    .then(() => {
-      scene.add(slides[current].mesh);
-      render();
-    });
-  // console.log(pairs);
+  play = async idx => {
+    const pair = this.pairs[idx];
+    const [slide] = await Promise.all([this.load(pair), time(this.delay)]);
+    this.slides.push(slide);
+    this.scene.remove.apply(this.scene, this.scene.children);
+    this.scene.add(this.slides[idx].mesh);
+    this.current = idx;
+    await this.next();
+    this.play((this.current + 1) % this.pairs.length);
+  };
 
-  // scene.add(slides[current].mesh);
+  load = async pair => {
+    const textures = await Promise.all(pair.map(src => load(this.loader, src)));
+    const { geometry, intensity, angle, disp } = this;
+    return createSlide(textures, geometry, intensity, angle, disp);
+  };
 
-  window.addEventListener("resize", () =>
-    renderer.setSize(parent.offsetWidth, parent.offsetHeight)
-  );
+  render = () => this.renderer.render(this.scene, this.camera);
 
-  this.next = () =>
-    tween(slides[current].mat.uniforms.dispFactor, 1, speed, easing, render);
+  next = () => {
+    const { slides, current, speed, easing, render } = this;
+    const { dispFactor } = slides[current].mat.uniforms;
+    return tween(dispFactor, 1, speed, easing, render);
+  };
 
-  this.previous = () =>
+  previous = () => {
+    const { slides, current, speed, easing, render } = this;
     tween(slides[current].mat.uniforms.dispFactor, 0, speed, easing, render);
+  };
 }
 
 function createScene({ offsetWidth: ow, offsetHeight: oh }) {

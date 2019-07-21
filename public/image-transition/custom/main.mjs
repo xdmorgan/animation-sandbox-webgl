@@ -16,7 +16,7 @@ export class App {
     // });
     const demo = new slideshow({
       parent: document.querySelector('[data-demo="parent"]'),
-      intensity: 0.3,
+      intensity: 0.1,
       sources: [
         "assets/1.jpg",
         "assets/2.jpg",

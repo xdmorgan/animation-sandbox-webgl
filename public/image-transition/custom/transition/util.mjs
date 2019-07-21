@@ -5,12 +5,14 @@ export const optional = (...args) => {
 };
 
 // replaced tweenmax to reduce file size, works with both
-export const tween = (targets, value, duration, easing, render) =>
-  anime({
-    targets,
-    value,
-    duration,
-    easing,
-    update: render,
-    complete: render
-  });
+export const tween = async (targets, value, duration, easing, update) =>
+  new Promise(complete =>
+    anime({
+      targets,
+      value,
+      duration,
+      easing,
+      update,
+      complete
+    })
+  );
