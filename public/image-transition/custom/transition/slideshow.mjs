@@ -15,7 +15,7 @@ export default class Slideshow {
     angle = Math.PI / 4,
     speed = 2000,
     easing = "easeOutExpo",
-    delay = 5000
+    delay = 1000
   } = {}) {
     this.parent = parent;
     [this.intensity, this.angle] = [intensity, angle];
@@ -41,7 +41,7 @@ export default class Slideshow {
     }
 
     window.addEventListener("resize", () =>
-      renderer.setSize(parent.offsetWidth, parent.offsetHeight)
+      this.renderer.setSize(this.parent.offsetWidth, this.parent.offsetHeight)
     );
 
     this.current = 0;
@@ -58,15 +58,22 @@ export default class Slideshow {
   }
 
   play = async idx => {
-    const pair = this.pairs[idx];
-    const [slide] = await Promise.all([this.load(pair), time(this.delay)]);
-    this.slides.push(slide);
+    if(!this.slides[idx]) {
+      const pair = this.pairs[idx];
+      const [slide] = await Promise.all([this.load(pair), time(this.delay)]);
+      this.slides.push(slide);
+    }else {
+      await time(this.delay);
+    }
     this.scene.remove.apply(this.scene, this.scene.children);
     this.scene.add(this.slides[idx].mesh);
     this.current = idx;
     await this.next();
+    this.reset(this.current % this.pairs.length)
     this.play((this.current + 1) % this.pairs.length);
   };
+
+  reset = (idx) => this.slides[idx].mat.uniforms.dispFactor.value = 0
 
   load = async pair => {
     const textures = await Promise.all(pair.map(src => load(this.loader, src)));
