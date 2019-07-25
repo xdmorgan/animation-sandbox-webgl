@@ -55,11 +55,11 @@ export default class Slideshow {
     } else {
       await time(this.delay);
     }
-    this.scene.remove.apply(this.scene, this.scene.children);
     this.scene.add(this.slides[idx].mesh);
+    this.reset(this.current);
+    this.scene.remove(this.slides[this.current].mesh);
     this.current = idx;
     await this.next();
-    this.reset(this.current % this.pairs.length);
     this.play((this.current + 1) % this.pairs.length);
   };
 
