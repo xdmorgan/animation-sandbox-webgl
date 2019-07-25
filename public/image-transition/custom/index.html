@@ -4,14 +4,43 @@
     <link rel="stylesheet" href="/style/design-system.css" />
     <link rel="stylesheet" href="/style/base-layout.css" />
     <style>
-      [data-demo="parent"] {
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      [data-ratio] {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 100%;
+        overflow: hidden;
+      }
+      [data-ratio] > * {
+        display: block;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      [data-demo="container"] {
+        width: 100%;
+        max-width: 420px;
+      }
+      [data-demo="canvas"] {
         outline: 1px solid red;
         display: block;
-        width: 690px;
-        height: 420px;
+        /* width: 100vw;
+        height: 100vh; */
       }
       [data-demo="pagination"] {
-        display: flex;
+        /* display: flex; */
+        display: none;
         align-items: center;
         justify-content: space-between;
         padding: 2rem;
@@ -19,8 +48,10 @@
     </style>
   </head>
   <body>
-    <div class="demo">
-      <div data-demo="parent"></div>
+    <div data-demo="container">
+      <div data-ratio>
+        <div data-demo="canvas"></div>
+      </div>
       <div data-demo="pagination">
         <button data-demo="previous" disabled>Previous</button>
         <button data-demo="next">Next</button>

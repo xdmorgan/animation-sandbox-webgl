@@ -1,4 +1,4 @@
-import hoverEffect from "./transition/hover-effect.mjs";
+// import hoverEffect from "./transition/hover-effect.mjs";
 import slideshow from "./transition/slideshow.mjs";
 
 export class App {
@@ -9,20 +9,20 @@ export class App {
     //   // intensity1: 0.1,
     //   // intensity2: 0.1,
     //   // angle2: Math.PI / 2,
-    //   image1: "assets/1.jpg",
-    //   image2: "assets/2.jpg",
+    //   image1: "assets/random/1.jpg",
+    //   image2: "assets/random/2.jpg",
     //   // video: true,
     //   displacementImage: "assets/displacement.jpg"
     // });
     const demo = new slideshow({
-      parent: document.querySelector('[data-demo="parent"]'),
+      parent: document.querySelector('[data-demo="canvas"]'),
       intensity: 0.1,
       sources: [
-        "assets/1.jpg",
-        "assets/2.jpg",
-        "assets/3.jpg",
-        "assets/4.jpg",
-        "assets/5.jpg"
+        "assets/square/1.jpg",
+        "assets/square/2.jpg",
+        "assets/square/3.jpg",
+        "assets/square/4.jpg",
+        "assets/square/5.jpg"
       ],
       displacement: "assets/displacement.jpg"
     });
